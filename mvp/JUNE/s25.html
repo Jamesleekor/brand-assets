@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>Slide 2.5 - 위기와 구원</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800;900&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400;1,600&family=Noto+Serif+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+html,body { width:1920px; height:1080px; overflow:hidden; background:#000; font-family:'Noto Serif KR',serif; }
+body { position:relative; }
+
+/* ─── 배경 ─── */
+.bg {
+  position:absolute; inset:0;
+  background:
+    radial-gradient(ellipse 65% 55% at 50% 38%, rgba(100,60,180,0.38) 0%, transparent 58%),
+    radial-gradient(ellipse at 50% 100%, rgba(30,10,70,0.6) 0%, transparent 70%),
+    linear-gradient(180deg, #08021a 0%, #110420 50%, #040108 100%);
+  transition:filter 0.8s ease, opacity 0.8s ease;
+}
+/* 폭풍 절정 시 배경 어두워짐 */
+.bg.storm { filter:brightness(0.35) saturate(0.6); }
+
+.stars { position:absolute; inset:0; pointer-events:none; }
+.star { position:absolute; background:#fff8d0; border-radius:50%; animation:twinkle var(--dur,3s) ease-in-out infinite var(--delay,0s); }
+@keyframes twinkle { 0%,100%{opacity:var(--min-op,0.2)} 50%{opacity:var(--max-op,0.8)} }
+
+/* 폭풍 구름/번개 오버레이 */
+.storm-overlay {
+  position:absolute; inset:0; pointer-events:none; opacity:0;
+  background:
+    radial-gradient(ellipse 80% 50% at 20% 0%, rgba(40,50,80,0.5) 0%, transparent 60%),
+    radial-gradient(ellipse 80% 50% at 80% 0%, rgba(40,50,80,0.5) 0%, transparent 60%);
+  transition:opacity 0.8s ease;
+}
+.storm-overlay.on { opacity:1; }
+.lightning {
+  position:absolute; inset:0; background:rgba(200,220,255,0.9); opacity:0; pointer-events:none;
+}
+.lightning.flash { animation:flashAnim 0.5s ease-out; }
+@keyframes flashAnim { 0%{opacity:0} 8%{opacity:0.85} 16%{opacity:0.1} 24%{opacity:0.7} 40%{opacity:0} 100%{opacity:0} }
+
+/* ─── 코너 장식 ─── */
+.corner{position:absolute;width:150px;height:150px;pointer-events:none;z-index:30}
+.corner.tl{top:40px;left:40px} .corner.tr{top:40px;right:40px;transform:scaleX(-1)}
+.corner.bl{bottom:40px;left:40px;transform:scaleY(-1)} .corner.br{bottom:40px;right:40px;transform:scale(-1,-1)}
+.corner svg{width:100%;height:100%;opacity:0.45}
+
+/* ─── 헤더 ─── */
+.header { position:absolute; top:44px; left:0; right:0; text-align:center; z-index:20; animation:slideDown 0.9s ease-out 0.1s both; }
+@keyframes slideDown { from{opacity:0;transform:translateY(-25px)} to{opacity:1;transform:translateY(0)} }
+.header-chapter { font-family:'Cinzel',serif; font-size:14px; color:#6b4a1a; letter-spacing:0.9em; margin-bottom:12px; }
+.header-title {
+  font-family:'Noto Serif KR',serif; font-size:50px; font-weight:900; letter-spacing:0.1em; color:#ffe9a8;
+  text-shadow: -2px -2px 0 #000, 2px -2px 0 #000, -2px 2px 0 #000, 2px 2px 0 #000,
+    0 0 40px rgba(255,215,100,0.35), 0 4px 20px rgba(0,0,0,0.9);
+}
+.header-sub { font-family:'Cormorant Garamond',serif; font-style:italic; font-size:20px; color:#8b6914; letter-spacing:0.14em; margin-top:10px; text-shadow:0 2px 8px rgba(0,0,0,0.9); }
+.divider { display:flex; align-items:center; justify-content:center; gap:14px; margin:14px auto 0; width:460px; }
+.divider .line { flex:1; height:1px; background:linear-gradient(90deg,transparent,#6b4a1a,transparent); }
+.divider .diamond { width:7px;height:7px;background:#c9a227;transform:rotate(45deg); }
+
+/* ─── 메인: 기둥 4개 가로 배치 ─── */
+.arena {
+  position:absolute; top:215px; left:0; right:0; bottom:60px;
+  display:flex; align-items:flex-end; justify-content:center; gap:70px;
+  padding:0 90px 0;
+}
+
+/* 개별 기둥 칼럼 */
+.col {
+  width:300px; height:100%;
+  display:flex; flex-direction:column; align-items:center; justify-content:flex-end;
+  position:relative;
+}
+
+/* 이름 (기둥 위) */
+.col-name {
+  font-family:'Noto Serif KR',serif; font-size:30px; font-weight:900; letter-spacing:0.06em;
+  color:var(--cc); text-shadow:0 0 18px var(--cglow), 0 2px 8px rgba(0,0,0,0.95);
+  margin-bottom:6px; text-align:center; position:relative; z-index:5;
+}
+.col-class { font-family:'Cinzel',serif; font-size:12px; color:#6b4a1a; letter-spacing:0.35em; margin-bottom:14px; }
+
+/* 숫자 (기둥 위, 점수) */
+.col-score {
+  font-family:'Cinzel',serif; font-weight:900; line-height:1;
+  color:var(--cc); margin-bottom:12px; position:relative; z-index:5;
+  font-size:46px; text-shadow:0 0 22px var(--cglow), 0 3px 10px rgba(0,0,0,1);
+  min-height:46px;
+}
+.col-score .unit { font-size:18px; color:rgba(255,255,255,0.45); margin-left:3px; }
+.col-score.pop { animation:scorePop 0.6s cubic-bezier(0.34,1.56,0.64,1); }
+@keyframes scorePop { 0%{transform:scale(1)} 40%{transform:scale(1.45)} 100%{transform:scale(1)} }
+
+/* 기둥 본체 (track) */
+.bar-track {
+  width:var(--bar-w, 70px);
+  height:560px;
+  position:relative;
+  display:flex; align-items:flex-end; justify-content:center;
+  transition:width 0.6s cubic-bezier(0.34,1.4,0.64,1);
+}
+
+/* 기둥 채움 (fill) */
+.bar-fill {
+  width:100%;
+  height:0;
+  position:relative;
+  border-radius:8px 8px 0 0;
+  background:linear-gradient(180deg, var(--cbright) 0%, var(--cc) 45%, var(--cdark2) 100%);
+  box-shadow:0 0 25px var(--cglow), inset 0 0 20px rgba(255,255,255,0.15);
+  transition:height 0.7s cubic-bezier(0.25,0.46,0.45,0.94);
+}
+/* 기둥 상단 발광 캡 */
+.bar-fill::before {
+  content:''; position:absolute; top:-3px; left:0; right:0; height:6px;
+  background:var(--cbright); border-radius:6px;
+  box-shadow:0 0 16px var(--cbright), 0 0 30px var(--cglow);
+}
+/* 기둥 내부 흐르는 빛 */
+.bar-fill::after {
+  content:''; position:absolute; inset:0; border-radius:8px 8px 0 0;
+  background:linear-gradient(180deg, transparent 0%, rgba(255,255,255,0.18) 50%, transparent 100%);
+  background-size:100% 200%;
+  animation:barFlow 2.5s linear infinite;
+}
+@keyframes barFlow { from{background-position:0 200%} to{background-position:0 0%} }
+
+/* 기둥 받침대 */
+.bar-base {
+  width:calc(var(--bar-w, 70px) + 40px);
+  height:18px; margin-top:-2px;
+  background:linear-gradient(180deg, var(--cc), var(--cdark2));
+  border-radius:3px;
+  box-shadow:0 0 16px var(--cglow);
+  transition:width 0.6s cubic-bezier(0.34,1.4,0.64,1);
+  position:relative; z-index:3;
+}
+
+/* 길드원 합류 빛기둥(바 안에서 위로 쏟아지는 빛) */
+.guild-beam {
+  position:absolute; left:50%; transform:translateX(-50%);
+  bottom:0; width:140%; height:0;
+  background:linear-gradient(180deg, transparent, var(--cglow));
+  opacity:0; pointer-events:none; border-radius:50%;
+  filter:blur(8px);
+}
+.guild-beam.on { animation:beamRise 0.8s ease-out; }
+@keyframes beamRise { 0%{opacity:0;height:0} 50%{opacity:0.9;height:100%} 100%{opacity:0;height:120%} }
+
+/* ─── 길드원 트레이(기둥 아래 합류한 캐릭터들) ─── */
+.guild-tray {
+  position:absolute; bottom:-2px; left:50%; transform:translateX(-50%);
+  width:340px; display:flex; flex-wrap:wrap; gap:8px;
+  align-items:center; justify-content:center;
+  pointer-events:none; z-index:8;
+  padding-bottom:38px;
+}
+
+/* 원형 프레임 길드원 */
+.member {
+  width:54px; height:54px; border-radius:50%;
+  border:2.5px solid var(--cc);
+  background:radial-gradient(circle at 35% 30%, var(--cdark2), #050108);
+  box-shadow:0 0 14px var(--cglow), inset 0 0 8px rgba(0,0,0,0.6);
+  display:flex; align-items:center; justify-content:center;
+  overflow:hidden; position:relative;
+  opacity:0; transform:scale(0) translateY(20px);
+}
+.member.in { animation:memberJoin 0.5s cubic-bezier(0.34,1.56,0.64,1) forwards; }
+@keyframes memberJoin {
+  0%{opacity:0;transform:scale(0) translateY(20px)}
+  60%{opacity:1;transform:scale(1.2) translateY(-4px)}
+  100%{opacity:1;transform:scale(1) translateY(0)}
+}
+/* 캐릭터 이미지 (없으면 번호 표시) */
+.member img { width:100%; height:100%; object-fit:cover; }
+.member .ph {
+  font-family:'Cinzel',serif; font-size:20px; font-weight:700; color:var(--cbright);
+  text-shadow:0 0 8px var(--cglow);
+}
+/* 합류 순간 반짝 */
+.member::after {
+  content:''; position:absolute; inset:-4px; border-radius:50%;
+  border:2px solid var(--cbright); opacity:0;
+}
+.member.in::after { animation:memberRing 0.6s ease-out; }
+@keyframes memberRing { 0%{opacity:0.9;transform:scale(0.7)} 100%{opacity:0;transform:scale(1.6)} }
+
+/* 라벨: 개인 → 길드 전환 */
+.col-stage {
+  font-family:'Cinzel',serif; font-size:13px; letter-spacing:0.3em;
+  color:rgba(255,255,255,0.4); margin-bottom:8px; height:16px;
+  transition:color 0.4s ease, text-shadow 0.4s ease;
+}
+.col-stage.guild { color:var(--cc); text-shadow:0 0 12px var(--cglow); font-weight:600; }
+
+/* ─── 컬러 변수 (후보별) ─── */
+.col.green { --cc:#6ab84a; --cbright:#b8e890; --cdark2:#264e14; --cglow:rgba(100,184,70,0.7); }
+.col.gold  { --cc:#d4a820; --cbright:#ffe090; --cdark2:#5a3800; --cglow:rgba(212,168,30,0.7); }
+.col.blue  { --cc:#5e9ad8; --cbright:#b8d9f8; --cdark2:#1e3a5c; --cglow:rgba(80,140,220,0.65); }
+.col.red   { --cc:#c05050; --cbright:#f0a0a0; --cdark2:#401818; --cglow:rgba(180,60,60,0.65); }
+.col.teal  { --cc:#3fb8c0; --cbright:#9fe8ee; --cdark2:#14505a; --cglow:rgba(63,184,192,0.7); }
+.col.crimson { --cc:#d04668; --cbright:#f5a0b8; --cdark2:#5a1830; --cglow:rgba(208,70,104,0.7); }
+
+/* ─── 중앙 메시지 오버레이 ─── */
+.center-msg {
+  position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+  text-align:center; z-index:40; pointer-events:none; opacity:0;
+}
+.center-msg.show { animation:msgShow 2.4s ease-out forwards; }
+@keyframes msgShow {
+  0%{opacity:0;transform:translate(-50%,-50%) scale(0.85)}
+  20%{opacity:1;transform:translate(-50%,-50%) scale(1)}
+  80%{opacity:1;transform:translate(-50%,-50%) scale(1)}
+  100%{opacity:0;transform:translate(-50%,-50%) scale(1.05)}
+}
+.center-msg .big {
+  font-family:'Noto Serif KR',serif; font-size:72px; font-weight:900; color:#ffe9a8; letter-spacing:0.1em;
+  text-shadow:0 0 40px rgba(255,215,100,0.6), 0 4px 20px rgba(0,0,0,1);
+}
+.center-msg .small {
+  font-family:'Cormorant Garamond',serif; font-style:italic; font-size:28px; color:#d4b86a;
+  letter-spacing:0.16em; margin-top:16px;
+}
+
+/* ─── 하단 카피 ─── */
+.bottom-copy {
+  position:absolute; bottom:18px; left:50%; transform:translateX(-50%);
+  font-family:'Cormorant Garamond',serif; font-style:italic; font-size:21px;
+  color:#4a2f0e; letter-spacing:0.18em; white-space:nowrap;
+  text-shadow:0 2px 8px rgba(0,0,0,0.9); z-index:20;
+}
+
+/* ─── 시작 안내 / 리플레이 버튼 ─── */
+.ctrl {
+  position:absolute; bottom:18px; right:30px; z-index:50;
+  display:flex; gap:10px;
+}
+.ctrl button {
+  font-family:'Cinzel',serif; font-size:13px; letter-spacing:0.15em;
+  color:#d4b86a; background:rgba(20,10,35,0.8); border:1px solid #6b4a1a;
+  padding:8px 16px; cursor:pointer; border-radius:3px;
+}
+.ctrl button:hover { background:rgba(40,25,60,0.9); color:#ffe9a8; }
+</style>
+</head>
+<body>
+<div class="bg" id="bg"></div>
+<div class="stars" id="stars"></div>
+<div class="storm-overlay" id="stormOv"></div>
+<div class="lightning" id="lightning"></div>
+
+<div class="corner tl"><svg viewBox="0 0 160 160"><path d="M10,10 L80,10 L80,14 L14,14 L14,80 L10,80 Z" fill="#d4b86a"/><circle cx="14" cy="14" r="4" fill="#ffd700"/><polygon points="80,10 90,20 80,30 70,20" fill="#ffd700"/></svg></div>
+<div class="corner tr"><svg viewBox="0 0 160 160"><path d="M10,10 L80,10 L80,14 L14,14 L14,80 L10,80 Z" fill="#d4b86a"/><circle cx="14" cy="14" r="4" fill="#ffd700"/><polygon points="80,10 90,20 80,30 70,20" fill="#ffd700"/></svg></div>
+<div class="corner bl"><svg viewBox="0 0 160 160"><path d="M10,10 L80,10 L80,14 L14,14 L14,80 L10,80 Z" fill="#d4b86a"/><circle cx="14" cy="14" r="4" fill="#ffd700"/><polygon points="80,10 90,20 80,30 70,20" fill="#ffd700"/></svg></div>
+<div class="corner br"><svg viewBox="0 0 160 160"><path d="M10,10 L80,10 L80,14 L14,14 L14,80 L10,80 Z" fill="#d4b86a"/><circle cx="14" cy="14" r="4" fill="#ffd700"/><polygon points="80,10 90,20 80,30 70,20" fill="#ffd700"/></svg></div>
+
+<div class="header">
+  <div class="header-chapter">Chapter II · ½ · The Storm & The Rescue · 위기와 구원</div>
+  <div class="header-title">홀로 설 수 없는 바다</div>
+  <div class="header-sub">침몰의 순간, 전우의 빛이 그들을 다시 일으킨다</div>
+  <div class="divider">
+    <div class="line"></div><div class="diamond"></div>
+    <div class="diamond" style="width:4px;height:4px;"></div>
+    <div class="diamond"></div><div class="line"></div>
+  </div>
+</div>
+
+<div class="arena" id="arena"></div>
+
+<div class="center-msg" id="centerMsg"></div>
+
+<div class="bottom-copy">공동체가 개인을 구한다 — 함께 싸운 전우의 힘</div>
+
+<div class="ctrl">
+  <button onclick="play()">▶ 재생</button>
+  <button onclick="location.reload()">↻ 리셋</button>
+</div>
+
+<script>
+/* ════════════════════════════════════════════════════════════
+   ▼▼▼ 데이터 영역 — 당일 이 부분만 교체하면 됩니다 ▼▼▼
+   ──────────────────────────────────────────────────────────
+   각 후보:
+     name      : 이름
+     cls       : 클래스(영문 소제목)
+     color     : 색 테마 (green/gold/blue/red/teal/crimson 중)
+     solo      : 개인 기여도 점수 (위기 때 좁고 낮게)
+     soloPct   : 개인 점수의 기둥 높이 % (박빙으로 낮게: 18~28 권장)
+     guildTotal: 길드 합산 점수 (구원 후 폭증)
+     members   : 길드원 목록. img 경로를 넣으면 원형 프레임 안에 표시,
+                 비워두면("") 번호가 표시됨.
+                 ※ 미술시간 후 학생 캐릭터 PNG 경로만 채우면 됨.
+   ════════════════════════════════════════════════════════════ */
+const CONFIG = {
+  candidates: [
+    {
+      name:"김 가 나", cls:"Navigator", color:"gold",
+      solo:750, soloPct:24, guildTotal:5900,
+      guildName:"빛나는 은하수",
+      members:[
+        {img:""},{img:""},{img:""},{img:""},{img:""}
+      ]
+    },
+    {
+      name:"이 다 라", cls:"Voyager", color:"blue",
+      solo:690, soloPct:20, guildTotal:5500,
+      guildName:"암흑장미",
+      members:[
+        {img:""},{img:""},{img:""},{img:""}
+      ]
+    },
+    {
+      name:"박 마 바", cls:"Explorer", color:"green",
+      solo:660, soloPct:18, guildTotal:4900,
+      guildName:"에메랄드",
+      members:[
+        {img:""},{img:""},{img:""},{img:""}
+      ]
+    },
+    {
+      name:"최 사 아", cls:"Pathfinder", color:"crimson",
+      solo:720, soloPct:22, guildTotal:5800,
+      guildName:"루비",
+      members:[
+        {img:""},{img:""},{img:""},{img:""},{img:""}
+      ]
+    }
+  ],
+  // 기둥 폭 (개인=가늘게, 길드=굵게) px
+  barWidthSolo: 56,
+  barWidthGuild: 120,
+  // 길드 기둥 최고 높이 %
+  guildPct: 96,
+  // 길드원 합류 간격 (ms)
+  memberInterval: 420
+};
+/* ▲▲▲ 데이터 영역 끝 ▲▲▲ */
+
+
+/* ─── 별 생성 ─── */
+const starsEl = document.getElementById('stars');
+for(let i=0;i<170;i++){
+  const s=document.createElement('div'); s.className='star';
+  const sz=Math.random()*1.6+0.4;
+  s.style.cssText=`width:${sz}px;height:${sz}px;left:${Math.random()*1920}px;top:${Math.random()*1080}px;--min-op:${0.1+Math.random()*0.25};--max-op:${0.45+Math.random()*0.45};--dur:${2+Math.random()*4}s;--delay:${Math.random()*5}s;`;
+  starsEl.appendChild(s);
+}
+
+/* ─── 기둥 DOM 생성 ─── */
+const arena = document.getElementById('arena');
+const cols = [];
+CONFIG.candidates.forEach((c, idx) => {
+  const col = document.createElement('div');
+  col.className = `col ${c.color}`;
+  col.style.setProperty('--bar-w', CONFIG.barWidthSolo + 'px');
+  col.innerHTML = `
+    <div class="col-name">${c.name}</div>
+    <div class="col-class">${c.cls}</div>
+    <div class="col-stage" data-stage>개인 기여도</div>
+    <div class="col-score" data-score>${c.solo}<span class="unit">점</span></div>
+    <div class="bar-track" data-track>
+      <div class="bar-fill" data-fill>
+        <div class="guild-beam" data-beam></div>
+      </div>
+      <div class="guild-tray" data-tray></div>
+    </div>
+    <div class="bar-base" data-base></div>
+  `;
+  arena.appendChild(col);
+  cols.push({ el: col, data: c,
+    fill: col.querySelector('[data-fill]'),
+    score: col.querySelector('[data-score]'),
+    stage: col.querySelector('[data-stage]'),
+    tray: col.querySelector('[data-tray]'),
+    beam: col.querySelector('[data-beam]'),
+    track: col.querySelector('[data-track]')
+  });
+});
+
+const bg = document.getElementById('bg');
+const stormOv = document.getElementById('stormOv');
+const lightning = document.getElementById('lightning');
+const centerMsg = document.getElementById('centerMsg');
+
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+function flashLightning(){
+  lightning.classList.remove('flash'); void lightning.offsetWidth;
+  lightning.classList.add('flash');
+}
+function showCenter(big, small, dur=2400){
+  centerMsg.innerHTML = `<div class="big">${big}</div>${small?`<div class="small">${small}</div>`:''}`;
+  centerMsg.classList.remove('show'); void centerMsg.offsetWidth;
+  centerMsg.classList.add('show');
+}
+
+let playing = false;
+async function play(){
+  if(playing) return; playing = true;
+
+  /* 1. 개인 막대 좁고 낮게 차오름 (박빙) */
+  await sleep(300);
+  cols.forEach(c => { c.fill.style.height = c.data.soloPct + '%'; });
+  await sleep(1100);
+
+  /* 2. 폭풍 절정 — 배경 어두워지고 번개 */
+  bg.classList.add('storm');
+  stormOv.classList.add('on');
+  await sleep(400);
+  flashLightning();
+  await sleep(600);
+  flashLightning();
+
+  /* 3. 멈칫 — 침몰 직전, 최암전 + 메시지 */
+  showCenter('침몰 직전', '홀로는 이 폭풍을 넘을 수 없다…');
+  await sleep(1700);
+
+  /* 4~6. 각 기둥: 길드색 빛 → 길드원 한 명씩 합류 → 폭+높이 증가 */
+  bg.classList.remove('storm');
+  stormOv.classList.remove('on');
+  await sleep(300);
+
+  // 라벨을 길드로 전환 + 기둥 굵게
+  cols.forEach(c => {
+    c.stage.textContent = c.data.guildName + ' 길드';
+    c.stage.classList.add('guild');
+    c.el.style.setProperty('--bar-w', CONFIG.barWidthGuild + 'px');
+  });
+  await sleep(400);
+
+  // 길드원 동시 진행(각 기둥 병렬), 한 명씩 합류
+  const maxMembers = Math.max(...cols.map(c => c.data.members.length));
+  for(let m=0; m<maxMembers; m++){
+    cols.forEach(c => {
+      if(m < c.data.members.length){
+        // 빛기둥 효과
+        c.beam.classList.remove('on'); void c.beam.offsetWidth; c.beam.classList.add('on');
+        // 원형 프레임 멤버 추가
+        const mem = document.createElement('div');
+        mem.className = 'member';
+        const mdata = c.data.members[m];
+        const hasImg = mdata && mdata.img && mdata.img.trim() !== '';
+        mem.innerHTML = hasImg ? `<img src="${mdata.img}" alt="">` : `<span class="ph">${m+1}</span>`;
+        c.tray.appendChild(mem);
+        void mem.offsetWidth; mem.classList.add('in');
+        // 기둥 점진 상승 (멤버 수에 비례)
+        const ratio = (m+1) / c.data.members.length;
+        const h = c.data.soloPct + (CONFIG.guildPct - c.data.soloPct) * ratio;
+        c.fill.style.height = h + '%';
+      }
+    });
+    await sleep(CONFIG.memberInterval);
+  }
+
+  await sleep(700);
+
+  /* 6. 마지막: 숫자 폭증 (개인 → 길드 합산) */
+  cols.forEach(c => {
+    animateScore(c, c.data.solo, c.data.guildTotal, 900);
+    c.fill.style.height = CONFIG.guildPct + '%';
+    c.score.classList.add('pop');
+  });
+  await sleep(1000);
+
+  /* 7. 위기 극복 메시지 */
+  showCenter('다시, 떠오르다', '공동체가 개인을 일으켜 세웠다', 2600);
+  await sleep(2600);
+
+  playing = false;
+}
+
+function animateScore(c, from, to, dur){
+  const start = performance.now();
+  function step(now){
+    const t = Math.min((now - start)/dur, 1);
+    const ease = 1 - Math.pow(1-t, 3);
+    const val = Math.round(from + (to-from)*ease);
+    c.score.innerHTML = `${val.toLocaleString()}<span class="unit">점</span>`;
+    if(t < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+/* 자동 재생 (페이지 로드 후 0.6초) */
+setTimeout(play, 600);
+</script>
+</body>
+</html>
